@@ -384,8 +384,8 @@ svg.lucide{width:18px;height:18px;flex:none}
 {
 /* ================= constants ================= */
 /* ---- SETUP: paste your Supabase values here (Project Settings > API) ---- */
-const SUPABASE_URL='https://sekutgduiiejvnxrzosl.supabase.co/rest/v1/';
-const SUPABASE_KEY='sb_publishable_9uv2hwWY5nM7tYx_KQDIvg_uV7plCHz';
+const SUPABASE_URL='PASTE_YOUR_SUPABASE_PROJECT_URL_HERE';
+const SUPABASE_KEY='PASTE_YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY_HERE';
 const CREATE_WORD='admincreate';
 /* ------------------------------------------------------------------------ */
 const CLIENT=Math.random().toString(36).slice(2);
@@ -682,6 +682,14 @@ async function rpc(fn,args){
 const publicLook=d=>({title:d.settings.login.title||'',sub:d.settings.login.sub||'',button:d.settings.login.button||'',scene:d.settings.login.scene||d.settings.theme});
 const rand=n=>{const a='abcdefghijkmnpqrstuvwxyz23456789';const u=crypto.getRandomValues(new Uint8Array(n));return [...u].map(x=>a[x%a.length]).join('')};
 
+function explain(e){
+ const m=String(e&&e.message||'');
+ if(e&&e.status===401||/api key|apikey|JWT|Unauthorized|No API key/i.test(m)) return 'Supabase rejected the key. Check SUPABASE_KEY is the publishable (or anon) key. Details: '+m;
+ if(e&&e.status===404||/Could not find the function|schema cache/i.test(m)) return 'The database is not set up yet. Run supabase.sql in Supabase > SQL Editor, then try again. Details: '+m;
+ if(/permission denied/i.test(m)) return 'Permission problem in the database. Re-run supabase.sql. Details: '+m;
+ return 'Server error: '+(m||'unknown')+(e&&e.status?' (HTTP '+e.status+')':'');
+}
+
 /* ================= state + sync ================= */
 let role=null, data=null, loaded=true, remoteEmpty=false, S=null, look=null;
 let dirty=false, saving=false, saveTimer=null, sel=0, preview=false, loginPreview=false;
@@ -791,7 +799,7 @@ $('lform').onsubmit=async e=>{
  const btn=$('lform').querySelector('.go'); busy(btn,true,'Unlocking...'); $('lerr').textContent='';
  let r=null;
  try{r=await unlock(await masterOf(v))}
- catch(err){busy(btn,false);lerr(err.offline?'Cannot reach the server. Check your internet and try again.':'Something went wrong opening this bottle. Try again.');return}
+ catch(err){busy(btn,false);lerr(err.offline?'Cannot reach the server. Check the Supabase URL and your internet.':explain(err));return}
  busy(btn,false);
  if(!r){lerr('Hmm, that is not the right password.');return}
  $('bottle').classList.add('open'); burst($('login'),26);
@@ -830,7 +838,7 @@ $('cform').onsubmit=async e=>{
   setTimeout(()=>enter('admin'),400);
  }catch(x){
   busy($('cGo'),false);
-  err(/taken/.test(x.message)?'One of these passwords is already used by another bottle. Choose a different one.':x.offline?'Cannot reach the server. Check your internet and try again.':'Could not create the project. Try again in a moment.');
+  err(/taken/.test(x.message)?'One of these passwords is already used by another bottle. Choose a different one.':x.offline?'Cannot reach the server. Check the Supabase URL and your internet.':explain(x));
  }
 };
 
