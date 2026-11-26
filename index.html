@@ -389,7 +389,12 @@ svg.lucide{width:18px;height:18px;flex:none}
 <script>
 {
 /* ================= constants ================= */
-const SUPABASE_URL=String(window.CONFIG_SUPABASE_URL||'').trim();
+const SUPABASE_URL=(u=>{
+ u=String(u||'').trim();
+ const m=u.match(/supabase\.com\/dashboard\/project\/([a-z0-9]+)/i); if(m) return 'https://'+m[1].toLowerCase()+'.supabase.co';
+ if(!/^https?:\/\//i.test(u)&&/\.supabase\.co/i.test(u)) u='https://'+u;
+ try{return new URL(u).origin}catch(e){return u}
+})(window.CONFIG_SUPABASE_URL);
 const SUPABASE_KEY=String(window.CONFIG_SUPABASE_KEY||'').trim();
 const CREATE_WORD='admincreate';
 const CLIENT=Math.random().toString(36).slice(2);
@@ -689,7 +694,8 @@ const rand=n=>{const a='abcdefghijkmnpqrstuvwxyz23456789';const u=crypto.getRand
 function explain(e){
  const m=String(e&&e.message||'');
  if(e&&e.status===401||/api key|apikey|JWT|Unauthorized|No API key/i.test(m)) return 'Supabase rejected the key. Check SUPABASE_KEY is the publishable (or anon) key. Details: '+m;
- if(e&&e.status===404||/Could not find the function|schema cache/i.test(m)) return 'The database is not set up yet. Run supabase.sql in Supabase > SQL Editor, then try again. Details: '+m;
+ if(/Invalid path|no Route matched/i.test(m)) return 'The Supabase URL looks wrong. It should be exactly https://xxxxxxxx.supabase.co with nothing after it. Details: '+m;
+ if(/Could not find the function|schema cache/i.test(m)) return 'The database is not set up yet. Run supabase.sql in Supabase > SQL Editor, then try again. Details: '+m;
  if(/permission denied/i.test(m)) return 'Permission problem in the database. Re-run supabase.sql. Details: '+m;
  return 'Server error: '+(m||'unknown')+(e&&e.status?' (HTTP '+e.status+')':'');
 }
