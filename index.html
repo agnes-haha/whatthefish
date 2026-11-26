@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+/* ===== SETUP: paste your two Supabase values between the quotes ===== */
+window.CONFIG_SUPABASE_URL = 'https://sekutgduiiejvnxrzosl.supabase.co/rest/v1/';
+window.CONFIG_SUPABASE_KEY = 'sb_publishable_9uv2hwWY5nM7tYx_KQDIvg_uV7plCHz';
+/* ==================================================================== */
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Confession</title>
@@ -383,11 +389,9 @@ svg.lucide{width:18px;height:18px;flex:none}
 <script>
 {
 /* ================= constants ================= */
-/* ---- SETUP: paste your Supabase values here (Project Settings > API) ---- */
-const SUPABASE_URL='PASTE_YOUR_SUPABASE_PROJECT_URL_HERE';
-const SUPABASE_KEY='PASTE_YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY_HERE';
+const SUPABASE_URL=String(window.CONFIG_SUPABASE_URL||'').trim();
+const SUPABASE_KEY=String(window.CONFIG_SUPABASE_KEY||'').trim();
 const CREATE_WORD='admincreate';
-/* ------------------------------------------------------------------------ */
 const CLIENT=Math.random().toString(36).slice(2);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
